@@ -119,14 +119,10 @@ The parse_tims_data.py script requires four parameters:
 - error file to write error information
 - parameters file (parameters.toml from PG repository).
 
-### Dockerhub image
-#TODO
-```
-docker run
-```
-
-#### Upgrading dockerhub image to full version
-In order to upgrade the dockerhub image to full version, one will need to build a new database (see [Image building](#build-the-docker-images-and-run-the-pg-updater) ). Dockerhub version is intended for evaluation use, and as such contains everything needed to deploy PG for evaluation.
+### Demo image for testing use
+Demo image is available in Zenodo (). However, few caveats apply:
+- Database included in the demo image only contains the bare minimum required to use the test files, and all data within the database has been scrambled. 
+- Similarly, SAINTExpress is not available on the demo image. This CAN be added by adding the executables to the container and making sure they are found in the path. However, we cannot distribute them by default.
 
 ### Docker Installation (recommended use case)
 ```
@@ -145,6 +141,14 @@ PG updater is used to generate a database. A small test database is provided, an
   - These will be registered as executables and put into the path of the PG container during the container creation (see dockerfile)
 - IF you want to use the CRAPome repository data, download it from https://reprint-apms.org/?q=data
   - Afterwards, you need to format the data into a format usable by pg_updater, see [Updating the database](#updating-the-database) for details
+
+##### Used API data
+During database building, PG downloads data from several sources:
+- Known interactions are downloaded from [IntACT](https://www.ebi.ac.uk/intact/home) and [BioGRID](https://thebiogrid.org/)
+- Protein data is downloaded from [UniProt](https://www.uniprot.org/)
+- Common contaminants are downloaded from [Global proteome machine](https://thegpm.org/), [MaxQuant](https://www.maxquant.org/), and a publication by Frankenfield et al., 2022 (PMID: 35793413).
+- MS-microscopy data is from a previous publication (PMID: 29568061)
+Some are included in the files already.
 
 ##### Build the main docker image.
 This can take up to an hour, mostly due to R requirements being built. Removing the need to compile so much is on the TODO list.
@@ -172,6 +176,7 @@ utils/run_updater.sh
 In order to keep the parameters.toml in sync with PG and the updater container, it is copied into path specified in the docker-compose.yaml. The file needs to be edited in that location ONLY, in order for the updated parameters to be applied to existing docker container, and the updater (e.g. different database name, or modified update intervals).
 
 #### Run the container
+- Modify the dockerfiles/docker-compose.yaml file to suit your environment, and then deploy the container:
 ```
 docker compose -f dockerfiles/docker-compose.yaml up
 ```
