@@ -1,0 +1,113 @@
+FROM ubuntu:24.04
+LABEL maintainer="Kari Salokas kari.salokas@helsinki.fi"
+USER root
+RUN apt-get update && \
+    apt-get -yq dist-upgrade
+RUN apt-get install -yq locales
+
+ENV PATH="/root/miniconda3/bin:${PATH}"
+ARG PATH="/root/miniconda3/bin:${PATH}"
+# Configure locale to avoid runtime errors
+RUN locale-gen en_US.UTF-8
+RUN update-locale LANG=en_US.UTF-8
+
+ENV LC_CTYPE="en_US.UTF-8"
+ENV LC_ALL="en_US.UTF-8"
+ENV LANG="en_US.UTF-8"
+ENV LANGUAGE="en_US:en"
+ENV R_BASE_VERSION="3.6.1"
+ENV DEBIAN_FRONTEND="noninteractive"
+
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    dirmngr \
+    wget \
+    xz-utils \
+    cron \
+    apt-utils \
+    software-properties-common 
+
+RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+RUN add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+RUN wget -q -O- https://eddelbuettel.github.io/r2u/assets/dirk_eddelbuettel_key.asc | tee -a /etc/apt/trusted.gpg.d/cranapt_key.asc
+RUN echo "deb [arch=amd64] https://r2u.stat.illinois.edu/ubuntu jammy main" > /etc/apt/sources.list.d/cranapt.list
+
+RUN apt-get update && apt-get install -y \
+    git  \
+    python3 \
+    python3-pip \
+    nodejs \
+    npm  \
+    dos2unix \
+    ca-certificates \
+    nano \
+    postgresql \
+    littler \
+    gnupg \
+    r-cran-littler \
+    r-base \
+    r-base-dev \
+    r-recommended \
+    redis psmisc \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    libssl-dev \
+    libgit2-dev \
+    libicu-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g configurable-http-proxy
+
+WORKDIR /
+RUN mkdir -p /proteogyver/resources
+COPY app/resources/R_requirements.R /proteogyver/resources/R_requirements.R
+RUN Rscript /proteogyver/resources/R_requirements.R
+
+COPY app /proteogyver
+COPY dockerfiles/docker_entrypoint.sh /docker_entrypoint.sh
+RUN chmod +x /docker_entrypoint.sh
+
+# Make SAINT executable
+WORKDIR /proteogyver/external/SAINTexpress
+RUN if [ -f SAINTexpress-spc ]; then \
+        chmod 777 SAINTexpress-spc && \
+        ln -s /proteogyver/external/SAINTexpress/SAINTexpress-spc /usr/bin/SAINTexpressSpc; \
+    fi
+RUN if [ -f SAINTexpress-int ]; then \
+        chmod 777 SAINTexpress-int && \
+        ln -s /proteogyver/external/SAINTexpress/SAINTexpress-int /usr/bin/SAINTexpressInt; \
+    fi
+
+RUN mkdir -p /proteogyver/data/Server_output
+RUN mkdir -p /proteogyver/data/Server_input
+RUN mkdir -p /proteogyver/data/Server_output/logs
+RUN mkdir -p /etc/supervisor/conf.d
+RUN cp /proteogyver/resources/celery.conf /etc/supervisor/conf.d/celery.conf
+
+# This will fix a bug in the 0.6 version of dash_uploader. It's a very crude method, but it works for this application.
+#RUN sed -i 's/isinstance/False:#/g' /usr/local/lib/python3.10/dist-packages/dash_uploader/callbacks.py
+# dash_uploader no longer used, keeping this in case it's needed in the future.
+
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
+    mkdir -p /root/.conda && \
+    bash miniconda.sh -b -p /root/miniconda3 && \
+    rm -f miniconda.sh
+WORKDIR /proteogyver
+RUN conda env create -f resources/environment.yml
+RUN conda clean -afy
+RUN conda init bash
+EXPOSE 8090 8050
+
+ENV PATH="/opt/conda/envs/proteogyver/bin:${PATH}"
+
+ENTRYPOINT ["/bin/bash", "/docker_entrypoint.sh"]
+
+

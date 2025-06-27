@@ -1,0 +1,46 @@
+# Use a lightweight Python base image
+FROM python:3.12
+
+# Set environment variables to reduce buffer issues and configure the application
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Set the working directory in the container
+WORKDIR /proteogyver
+
+RUN mkdir -p /proteogyver/data/Server_output
+RUN mkdir -p /proteogyver/data/Server_input
+RUN mkdir -p /proteogyver/data/Server_output/logs
+# Requirement and config
+COPY app/resources/updater_requirements.txt requirements.txt
+COPY app/parameters.toml parameters.toml
+
+# Main scripts
+COPY app/database_updater.py database_updater.py
+COPY app/database_generator.py database_generator.py
+COPY app/database_admin.py database_admin.py
+
+# Needed data
+COPY app/data /proteogyver/data
+
+# Needed extras
+COPY app/components/text_handling.py components/text_handling.py
+COPY app/components/db_functions.py components/db_functions.py
+COPY app/components/api_tools/apitools.py components/api_tools/apitools.py
+COPY app/components/api_tools/annotation components/api_tools/annotation
+COPY app/components/tools/utils.py components/tools/utils.py
+
+
+# Install system dependencies (if needed) and Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && pip install --upgrade pip \
+    && pip install -r requirements.txt \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the updater script and any additional files into the container
+#COPY database_updater.py /app/
+#COPY parameters.toml /app/
+# Specify the default entry point to run the updater script
+ENTRYPOINT ["python", "/proteogyver/database_admin.py"]

@@ -1,0 +1,209 @@
+"Navbar page order" = ["qc and data analysis", "ms inspector", "windowmaker", "colocalizer"]
+
+[Config]
+"Local debug" = false
+LogDir = "logs"
+LogLevel = 20
+"R error file" = "R_errors.log"
+"Time format" = "%Y-%m-%d %H:%M:%S"
+# Either integer or "ncpus"
+"CPU count limit" = "ncpus"
+
+["Cytoscape layout parameters"]
+maxSimulationTime = 12000
+nodeSpacing = 15
+padding = 10
+randomize = true
+
+["Data paths"]
+"Cache dir" = ["/proteogyver", "cache"]
+"Database file" = ["data", "db", "proteogyver.db"]
+"Minimal database file" = ["data", "minimal_pg_test_db.sqlite3"]
+"Example files zip" = ["data", "PG example files.zip"]
+"Example proteomics comparison file" = ["data", "example proteomics comparisons file.tsv"]
+
+["Data paths"."Data import and export"]
+"Data import dir" = ["/proteogyver", "data", "Server_input"]
+"Data export dir" = ["/proteogyver", "data", "Server_output"]
+
+
+["Database creation"]
+"Contaminants table" = "contaminant_list.tsv"
+"Temporary directory for database generation" = "db_tmp"
+"Control table" = "control table.tsv"
+"Crapome table" = "crapome table.tsv"
+"Database build files directory" = ["data", "db build files"]
+"Organisms to include in database" = [9606]
+"Sets not included in controls" = ["Nesvilab"]
+"Control and crapome db detailed columns" = [
+    "protein_id",
+    "identified_in",
+    "frequency",
+    "spc_sum",
+    "spc_avg",
+    "spc_min",
+    "spc_max",
+    "spc_stdev"
+]
+"Control and crapome db detailed types" = [
+    "TEXT PRIMARY KEY",
+    "INTEGER NOT NULL",
+    "REAL NOT NULL",
+    "INTEGER NOT NULL",
+    "REAL NOT NULL",
+    "INTEGER NOT NULL",
+    "INTEGER NOT NULL",
+    "REAL NOT NULL"
+]
+"Default control disabled regex list" = [".*[Mm][Aa][Cc]2.*"]
+
+["Database creation"."MS runs information"]
+#These directories should be ignored when loading run data into the database. 
+"Ignore runs from dirs" = ["BRE_20_xxxxx_Helsinki", "TrapTrouble_3"]
+#Directory containing parsed run jsons from parse_tims_data.py (or equivalent)
+"MS run data dir" = ["/media","kmsaloka","Expansion","20241118_parse","MS run data"]
+"handled MS run data dir" = ["data", "Server_input", "MS run data handled"]
+# This regex should capture the run ID from the MS run folder name. As currently only timstof data is supported, each run corresponds to a folder with .d in the name. In our case, it is in the form of either "1234_RUN_NAME_HERE.d" or "1234_Tomppa_RUN_NAME_HERE.d"
+# However, we don't care about the run name or the .d part, only the ID, and "_Tomppa", if present. 
+"MS run ID regex" = "^(\\d+)(?:(_Tomppa))?"
+# This excel should contain columns defined by Additional info excel columns.
+# Column name changes requires changes to database_generator.py, and also anywhere where such columns are referenced.
+"Additional info excel" = ["data", "db build files", "combined runlist for PG.xlsx"]
+"Additional info excel columns" = ["Sample name","Who","Sample type","Bait name","Bait / other uniprot or ID","Bait mutation","Cell line / material","Project","Notes","tag"]
+
+
+["Database creation"."Control and crapome sets"]
+"VL GFP MAC3 10min AP" = ["VL GFP MAC3-N AP-MS"]
+"VL GFP MAC3 10min BioID" = ["VL GFP MAC3-N BioID"]
+"VL GFP MAC2 18h AP" = [
+    "VL GFP MAC2-C AP-MS",
+    "VL GFP MAC2-N AP-MS"
+]
+"VL GFP MAC2 18h BioID" = [
+    "VL GFP MAC2-C BioID",
+    "VL GFP MAC2-N BioID"
+]
+"VL GFP MAC 24h AP" = [
+    "VL GFP MAC-C AP-MS",
+    "VL GFP MAC-N AP-MS"
+]
+"VL GFP MAC 24h AP NLS" = [
+    "VL GFP MAC-MED-NLS AP-MS",
+    "VL GFP MAC-MYC-NLS AP-MS",
+    "VL GFP MAC-NLS AP-MS"
+]
+"VL GFP MAC 24h BioID" = [
+    "VL GFP MAC-C BioID",
+    "VL GFP MAC-N BioID"
+]
+"VL GFP MAC 24h BioID NLS" = [
+    "VL GFP MAC-MED-NLS BioID",
+    "VL GFP MAC-MYC-NLS BioID",
+    "VL GFP MAC-NLS BioID"
+]
+"Nesvilab" = ["nesvilab"]
+
+["Database creation"."Control and crapome column mapping"]
+"crapome" = ["data", "db build files", "crapome sets.json"]
+"control" = ["data", "db build files", "control sets.json"]
+
+["Database updater"]
+"Allowed missing columns" = 2
+"Allowed new columns" = 2
+"Log table" = "update_log"
+"Update interval seconds" = 900
+"External data update interval days" = 30
+"Tsv templates directory" = ["data", "Server_output", "db update tsv templates"]
+"Database clean interval days" = 60
+# These specify whether we should delete data from the database that is no longer in uniprot or known databases during database update.
+# Uniprot especially should probably be left to false, as custom added proteins do exist in the database, e.g. tags and old crapome entries.
+"Delete old uniprots" = false
+"Delete old interactions" = true
+# These columns are not compared when checking for differences between existing database and new incoming data from update tables.
+"Ignore diffs" = [ "biological_role_interactor_a", "annotation_interactor_a", "annotation_interactor_b", "biological_role_interactor_b", "is_latest", "contamination_source", "entry_source", "version_update_time", "prev_version", "update_time", "modification", "ontology_term_categories",    "intact_creation_date",    "intact_update_date",    "experimental_role_interactor_a",    "experimental_role_interactor_b",    "ontology_term_ids",    "ontology_term_names",    "ontology_term_qualifier_ids",    "ontology_term_qualifier_names",    "ontology_term_types",    "qualifications",    "tags",    "publication_count",    "throughput"]
+
+["Database updater"."Database table primary keys"]
+common_proteins = "uniprot_id"
+contaminants = "uniprot_id"
+control_sets = "control_set"
+crapome_sets = "crapome_set"
+known_interactions = "interaction"
+ms_runs = "run_id"
+msmicroscopy = "Interaction"
+proteins = "uniprot_id"
+
+["Database updater"."Update files"]
+common_proteins = ["data", "Server_input", "db_updates", "common_proteins"]
+contaminants = ["data", "Server_input", "db_updates", "contaminants"]
+control_sets = ["data", "Server_input", "db_updates", "control_sets"]
+crapome_sets = ["data", "Server_input", "db_updates", "crapome_sets"]
+known_interactions = ["data", "Server_input", "db_updates", "known_interactions"]
+ms_runs = ["data", "Server_input", "db_updates", "ms_runs"]
+msmicroscopy = ["data", "Server_input", "db_updates", "msmicroscopy"]
+proteins = ["data", "Server_input", "db_updates", "proteins"]
+add_or_replace = ["data", "Server_input", "db_updates", "add_or_replace"]
+remove_data = ["data", "Server_input", "db_updates", "remove_data"]
+
+["Database updater"."Database snapshot settings"]
+"Snapshot interval days" = 30
+"Snapshot dir" = ["data", "Server_output", "db snapshots"]
+"Snapshots to keep" = 3
+
+["Database updater"."Versions to keep"]
+biogrid = 3
+intact = 3
+biogrid_path = "components/api_tools/api_data/BioGRID/"
+intact_path = "components/api_tools/api_data/IntAct/"
+biogrid_regex = "BIOGRID-ALL-(\\d+\\.\\d+\\.\\d+)"
+intact_regex = "^(\\d{4}-\\d{2}-\\d{2})_intact"
+
+["External tools"]
+"SAINT tempdir" = ["external", "SAINTexpress"]
+
+["Figure defaults".full-height]
+width = 1000
+height = 700
+["Figure defaults".full-height.config.toImageButtonOptions]
+format = "png"
+
+["Figure defaults".half-height]
+width = 1000
+height = 350
+["Figure defaults".half-height.config.toImageButtonOptions]
+format = "png"
+
+["file loading"]
+"Bait ID column names" = ["bait uniprot", "bait id", "bait identifier", "baitid", "bait up"]
+"Do not show in enrichment default" = []
+"Maximum psm ever theoretically encountered" = 5000
+
+["Module paths"]
+Enrichers = ["components", "enrichment"]
+
+["Possible values"]
+"Figure templates" = ["plotly_white", "simple_white", "plotly_dark"]
+Figure-config-toImageButtonOptions-format = ["png", "svg", "jpeg", "webp"]
+"Implemented workflows" = ["Proteomics", "Interactomics"]
+
+["workflow parameters"]
+phosphoproteomics = "Not implemented"
+["workflow parameters".interactomics]
+"control indicators" = ["ctrl", "gfp", "control"]
+
+["workflow parameters".proteomics]
+na_filter_default_value = 60
+"default imputation method" = "QRILC"
+"default normalization method" = "no_normalization"
+
+["workflow parameters".proteomics."imputation methods"]
+QRILC = "QRILC"
+minProb = "minProb"
+gaussian = "gaussian"
+minValue = "minValue"
+
+["workflow parameters".proteomics."normalization methods"]
+Median = "Median"
+Quantile = "Quantile"
+Vsn = "Vsn"
+"No normalization" = "no_normalization"
+
