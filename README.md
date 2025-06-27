@@ -25,6 +25,7 @@ The app is insecure as it is. It is intended to be run on a network that is not 
 
 
 ### Usage
+Example files are downloadable from the sidebar of the main interface. These include example data files and sample tables for interactomics, and proteomics workflows.
 
 1. Access the web interface (host:port, e.g. localhost:8050, if running locally)
 2. Upload your data and sample tables
