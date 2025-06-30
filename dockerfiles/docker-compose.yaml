@@ -12,9 +12,9 @@ services:
       - RESOURCE_LOG_KEEP_DAYS=30
 
     volumes:
-      - /data/PG_ext_Data/cache:/proteogyver/cache
+      - /data/PG_ext_data/cache:/proteogyver/cache
       - /data/PG_ext_data/db:/proteogyver/data/db
-      - /mnt/MS_rundata:/proteogyver/data/Server_input
+      - /mnt/Server_input:/proteogyver/data/Server_input
       - /mnt/Server_output:/proteogyver/data/Server_output
       # This is required for the updater to share one parameter file with the server.
       - /data/PG_ext_data/conf/parameters.toml:/proteogyver/parameters.toml

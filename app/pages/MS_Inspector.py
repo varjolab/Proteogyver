@@ -80,6 +80,8 @@ data.drop(columns=[c for c in data.columns if c not in required_columns],inplace
 
 ms_list = data['instrument'].unique()
 sample_list: list = sorted(list(data['sample_type'].fillna('No sampletype').unique()))
+if data.shape[0] > 0:
+    data = db_functions.get_full_table_as_pd(db_conn, 'ms_runs', index_col='run_id').replace('',np.nan)
 data['run_time'] = data.apply(lambda x: datetime.strptime(x['run_time'],parameters['Config']['Time format']),axis=1)
 d = data['run_time'].max()
 maxtime = date(d.year,d.month, d.day)

@@ -9,7 +9,10 @@ fi
 
 # --- Activate environment and move to project folder ---
 cd /proteogyver
+
+# Source conda initialization
 source /root/miniconda3/etc/profile.d/conda.sh
+conda init
 conda activate PG
 
 # --- Ensure clean Redis and Celery state ---
