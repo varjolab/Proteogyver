@@ -72,6 +72,7 @@ COPY app/resources/R_requirements.R /proteogyver/resources/R_requirements.R
 RUN Rscript /proteogyver/resources/R_requirements.R
 
 COPY app /proteogyver
+COPY utils /proteogyver/utils
 COPY dockerfiles/docker_entrypoint.sh /docker_entrypoint.sh
 RUN chmod +x /docker_entrypoint.sh
 
