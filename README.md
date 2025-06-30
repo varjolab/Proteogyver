@@ -123,7 +123,7 @@ The parse_tims_data.py script requires four parameters:
 - parameters file (parameters.toml from PG repository).
 
 ### Demo image for testing use
-Demo image is available in Zenodo (). However, few caveats apply:
+Demo image is available [here](https://datacloud.helsinki.fi/index.php/s/82XggT2ENbAFsKp). However, few caveats apply:
 - Database included in the demo image only contains the bare minimum required to use the test files, and all data within the database has been scrambled. 
 - Similarly, SAINTExpress is not available on the demo image. This CAN be added by adding the executables to the container and making sure they are found in the path. However, we cannot distribute them by default.
 
@@ -223,7 +223,6 @@ python database_admin.py
 conda activate PG
 bash startup.sh
 ```
-
 
 ## Updating the database
 To update the database, use the updater container, preferably with the included script:
