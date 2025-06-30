@@ -4,7 +4,7 @@ Proteogyver (PG) is a low-threshold, web-based platform for proteomics and inter
 
 ## Security
 
-The app is insecure as it is. It is intended to be run on a network that is not exposed to the public internet, and contain data only accessible to trusted users.
+The app is insecure as it is. It is intended to be run on a network that is only accessible to trusted users.
 
 ## QC and quick analysis toolset
 
